@@ -26,6 +26,7 @@ import { StatusBanner } from "@/components/inspection/StatusBanner";
 import { ProductInfoCard } from "@/components/inspection/ProductInfoCard";
 import { FindingsTable } from "@/components/inspection/FindingsTable";
 import { ExtractedTextCard } from "@/components/inspection/ExtractedTextCard";
+import { PDFGenerator } from "@/components/inspection/PDFGenerator";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Alert } from "@/components/ui/Alert";
@@ -42,33 +43,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [imageModalOpen, setImageModalOpen] = useState(false);
-  const [downloadingPdf, setDownloadingPdf] = useState(false);
-  const [downloadingXlsx, setDownloadingXlsx] = useState(false);
-  // Must be declared here (not after early returns) to satisfy Rules of Hooks
   const [activeImageIdx, setActiveImageIdx] = useState(0);
-
-  const downloadReport = async (format: "pdf" | "xlsx", setLoadingFn: (v: boolean) => void) => {
-    if (!inspection) return;
-    setLoadingFn(true);
-    try {
-      const baseUrl = getApiBaseUrl();
-      const resp = await fetch(`${baseUrl}/api/v1/inspections/${inspection.id}/report?format=${format}`);
-      if (!resp.ok) throw new Error(`Server error ${resp.status}`);
-      const blob = await resp.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `LM-Verify-Report-${inspection.id}.${format}`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    } catch (e) {
-      console.error("Report download failed:", e);
-    } finally {
-      setLoadingFn(false);
-    }
-  };
 
   const fetchInspectionData = async () => {
     setLoading(true);
@@ -174,40 +149,10 @@ export default function ResultsPage({ params }: ResultsPageProps) {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {/* Quick download buttons — available without going to /report */}
+          {/* Client-Side PDF Generation */}
           {inspection.result && (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => downloadReport("xlsx", setDownloadingXlsx)}
-                disabled={downloadingXlsx}
-                className="text-xs text-emerald-700 border-emerald-200 hover:bg-emerald-50"
-                title="Download Excel report"
-              >
-                <FileSpreadsheet className="w-3.5 h-3.5 mr-1 text-emerald-600" />
-                {downloadingXlsx ? "Preparing…" : ".xlsx"}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => downloadReport("pdf", setDownloadingPdf)}
-                disabled={downloadingPdf}
-                className="text-xs text-blue-700 border-blue-200 hover:bg-blue-50"
-                title="Download PDF report"
-              >
-                <Download className="w-3.5 h-3.5 mr-1 text-blue-600" />
-                {downloadingPdf ? "Generating…" : "PDF"}
-              </Button>
-            </>
+            <PDFGenerator inspection={inspection} />
           )}
-
-          <Link href={`/inspection/${inspection.id}/report`}>
-            <Button variant="primary" size="sm" className="bg-slate-900 hover:bg-slate-800 text-white text-xs">
-              <FileText className="w-3.5 h-3.5 mr-1.5" />
-              Full Report
-            </Button>
-          </Link>
 
           <Link href="/inspection/new">
             <Button variant="outline" size="sm" className="text-xs">

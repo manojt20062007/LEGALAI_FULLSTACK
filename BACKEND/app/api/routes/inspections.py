@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.db.database import get_db
 from app.schemas.inspection import (
+    InspectionCreateRequest,
     InspectionCreateResponse,
     InspectionDetailResponse,
 )
@@ -22,34 +23,28 @@ router = APIRouter(tags=["Inspections"])
     summary="Upload package image(s) and initiate multi-panel compliance inspection",
 )
 async def create_inspection(
-    images: list[UploadFile] = File(default=[], description="Multiple packaging panel photos (e.g., Front, Back, MRP)"),
-    image: Optional[UploadFile] = File(default=None, description="Primary packaging photo"),
+    request: InspectionCreateRequest,
     db: Session = Depends(get_db),
 ):
     """
-    Upload one or more images of a packaged commodity (e.g. Front display panel, MRP label, Manufacturer panel).
-    Initiates multi-angle OCR extraction, fusion, and Legal Metrology compliance evaluation.
+    Initiates multi-angle OCR extraction, fusion, and Legal Metrology compliance evaluation
+    using images hosted on Cloudinary.
     """
-    files_to_process: list[UploadFile] = []
-    if images:
-        files_to_process.extend([f for f in images if f.filename])
-    if image and image.filename:
-        if not any(f.filename == image.filename for f in files_to_process):
-            files_to_process.append(image)
+    urls_to_process = []
+    if request.image_urls:
+        urls_to_process.extend(request.image_urls)
+    if request.image_url:
+        if request.image_url not in urls_to_process:
+            urls_to_process.append(request.image_url)
 
-    if not files_to_process:
+    if not urls_to_process:
         from fastapi import HTTPException
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="At least one packaging image ('image' or 'images') must be uploaded.",
+            detail="At least one image URL ('image_url' or 'image_urls') must be provided.",
         )
 
-    contents_list: list[bytes] = []
-    for f in files_to_process:
-        c = await f.read()
-        contents_list.append(c)
-
-    return InspectionService.create_inspection(db=db, files=files_to_process, contents_list=contents_list)
+    return InspectionService.create_inspection(db=db, image_urls=urls_to_process)
 
 
 @router.get(
@@ -123,43 +118,3 @@ def get_current_user_profile(
         "department": current_user.department,
         "capabilities": capabilities.get(current_user.role, []),
     }
-
-
-@router.get(
-    "/inspections/{inspection_id}/report",
-    summary="Download or view inspection report",
-)
-def get_inspection_report(
-    inspection_id: str,
-    format: Optional[str] = Query("pdf", pattern="^(pdf|html|csv|json|xlsx)$", description="Report format: 'pdf', 'html', 'csv', 'json', or 'xlsx'"),
-    db: Session = Depends(get_db),
-):
-    """
-    Generate and retrieve the compliance inspection report in PDF, HTML, CSV, or JSON format.
-    """
-    content_bytes, media_type, filename = InspectionService.get_inspection_report(
-        db=db,
-        inspection_id=inspection_id,
-        format_type=format,
-    )
-
-    disposition = "inline" if format == "html" else f'attachment; filename="{filename}"'
-    return Response(
-        content=content_bytes,
-        media_type=media_type,
-        headers={"Content-Disposition": disposition},
-    )
-
-
-@router.get(
-    "/storage/files/{filename}",
-    include_in_schema=False,
-)
-def get_local_storage_file(filename: str):
-    """Serve uploaded images stored in local storage."""
-    safe_filename = os.path.basename(filename)
-    file_path = os.path.join(settings.LOCAL_STORAGE_DIR, safe_filename)
-    if not os.path.exists(file_path):
-        return Response(status_code=404, content="File not found")
-    return FileResponse(file_path)
-

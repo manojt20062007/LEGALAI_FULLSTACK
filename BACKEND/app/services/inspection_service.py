@@ -68,55 +68,28 @@ class InspectionService:
 
     @classmethod
     def create_inspection(
-        cls,
-        db: Session,
-        files: List[UploadFile],
-        contents_list: List[bytes],
+        cls, db: Session, image_urls: List[str]
     ) -> InspectionCreateResponse:
-        """Create inspection supporting 1 to N packaging panel images, store files, and dispatch processing."""
-        if not files or not contents_list:
+        """Create inspection supporting 1 to N Cloudinary URLs and dispatch processing."""
+        if not image_urls:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="At least one packaging image file must be uploaded.",
+                detail="At least one image URL must be provided.",
             )
-
-        # Validate each image file
-        for file, contents in zip(files, contents_list):
-            cls.validate_image_file(file, contents)
 
         # Generate unique inspection ID
         inspection_id = str(uuid.uuid4())
-        storage = get_storage_service()
 
-        stored_paths: List[str] = []
-        stored_urls: List[str] = []
-
-        # Upload each image to storage
-        for idx, (file, contents) in enumerate(zip(files, contents_list)):
-            ext = os.path.splitext(file.filename or ".jpg")[1].lower() or ".jpg"
-            suffix = f"_{idx + 1}" if len(files) > 1 else ""
-            storage_filename = f"{inspection_id}{suffix}{ext}"
-            
-            storage_path = storage.upload(
-                file_data=contents,
-                filename=storage_filename,
-                content_type=file.content_type or "image/jpeg",
-            )
-            image_url = storage.get_url(storage_path)
-            stored_paths.append(storage_path)
-            stored_urls.append(image_url)
-
-        primary_path = stored_paths[0]
-        primary_url = stored_urls[0]
+        primary_url = image_urls[0]
 
         # Create database record
         inspection = Inspection(
             id=inspection_id,
             status=InspectionStatus.QUEUED.value,
-            image_path=primary_path,
+            image_path=primary_url, # Fallback compat
             image_url=primary_url,
-            image_paths=stored_paths,
-            image_urls=stored_urls,
+            image_paths=image_urls, # Fallback compat
+            image_urls=image_urls,
         )
         db.add(inspection)
         db.commit()
@@ -265,80 +238,4 @@ class InspectionService:
         }
 
 
-    @classmethod
-    def get_inspection_report(cls, db: Session, inspection_id: str, format_type: str = "pdf") -> Tuple[bytes, str, str]:
-        """
-        Generate inspection report.
-        Returns (content_bytes, media_type, filename).
-        """
-        inspection_data = cls.get_inspection(db, inspection_id)
-
-        if inspection_data.status == InspectionStatus.QUEUED or inspection_data.status == InspectionStatus.PROCESSING:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Inspection is still in progress. Please wait for processing to complete before requesting report.",
-            )
-
-        if inspection_data.status == InspectionStatus.FAILED:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=f"Cannot generate report for failed inspection: {inspection_data.error_message or 'Unknown processing error'}",
-            )
-
-        if not inspection_data.result:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Compliance results are unavailable for this inspection.",
-            )
-
-        date_str = inspection_data.created_at.strftime("%Y-%m-%d %H:%M:%S UTC")
-
-        if format_type == "html":
-            html_content = ReportGenerator.generate_html(
-                inspection_id=inspection_id,
-                created_at=date_str,
-                compliance_result=inspection_data.result,
-                image_url=inspection_data.image_url,
-            )
-            return html_content.encode("utf-8"), "text/html", f"LM-Verify-Report-{inspection_id}.html"
-
-        if format_type == "csv":
-            csv_content = ReportGenerator.generate_csv(
-                inspection_id=inspection_id,
-                created_at=date_str,
-                compliance_result=inspection_data.result,
-                image_url=inspection_data.image_url,
-            )
-            return csv_content.encode("utf-8"), "text/csv", f"LM-Verify-Report-{inspection_id}.csv"
-
-        if format_type == "json":
-            json_content = ReportGenerator.generate_json(
-                inspection_id=inspection_id,
-                created_at=date_str,
-                compliance_result=inspection_data.result,
-                image_url=inspection_data.image_url,
-            )
-            return json_content.encode("utf-8"), "application/json", f"LM-Verify-Report-{inspection_id}.json"
-
-        if format_type == "xlsx":
-            xlsx_bytes = ReportGenerator.generate_xlsx(
-                inspection_id=inspection_id,
-                created_at=date_str,
-                compliance_result=inspection_data.result,
-                image_url=inspection_data.image_url,
-            )
-            return (
-                xlsx_bytes,
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                f"LM-Verify-Report-{inspection_id}.xlsx",
-            )
-
-        # Default: PDF
-        pdf_bytes = ReportGenerator.generate_pdf(
-            inspection_id=inspection_id,
-            created_at=date_str,
-            compliance_result=inspection_data.result,
-            image_url=inspection_data.image_url,
-        )
-        return pdf_bytes, "application/pdf", f"LM-Verify-Report-{inspection_id}.pdf"
 

@@ -27,7 +27,36 @@ export default function NewInspectionPage() {
     setError(null);
 
     try {
-      const inspection = await uploadInspection(files);
+      // 1. Upload files to Cloudinary first
+      const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`;
+      const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "";
+
+      if (!process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME) {
+        throw new Error("Cloudinary configuration is missing in environment variables.");
+      }
+
+      const uploadedUrls: string[] = [];
+
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", uploadPreset);
+
+        const res = await fetch(cloudinaryUrl, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!res.ok) {
+          throw new Error(`Failed to upload ${file.name} to Cloudinary`);
+        }
+
+        const data = await res.json();
+        uploadedUrls.push(data.secure_url);
+      }
+
+      // 2. Send the URLs to the backend
+      const inspection = await uploadInspection(uploadedUrls);
       if (inspection && inspection.id) {
         router.push(`/inspection/${inspection.id}/processing`);
       } else {

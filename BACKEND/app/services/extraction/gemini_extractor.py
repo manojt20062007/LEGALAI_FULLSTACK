@@ -17,7 +17,7 @@ class GeminiExtractor:
         self.api_key = os.getenv("GEMINI_API_KEY")
         if self.api_key:
             genai.configure(api_key=self.api_key)
-            # Using 1.5-flash as it is highly capable and fast for multimodal structured output
+            # Using 3.5-flash as it is highly capable and fast for multimodal structured output
             self.model = genai.GenerativeModel("gemini-3.5-flash")
             self.enabled = True
             logger.info("Gemini AI Extractor initialized successfully.")

@@ -1,13 +1,12 @@
 import logging
+import requests
 from app.workers.celery_app import celery_app
 from app.db.database import SessionLocal
 from app.db.models import Inspection
-from app.services.storage import get_storage_service
 from app.services.ocr import get_ocr_service
 from app.services.extraction.extractor import LabelExtractor
 from app.services.extraction.gemini_extractor import gemini_extractor
 from app.services.compliance.engine import ComplianceEngine
-from app.services.ml.yolo_service import yolo_service
 
 logger = logging.getLogger(__name__)
 
@@ -36,14 +35,13 @@ def process_inspection(self, inspection_id: str):
         inspection.status = "processing"
         db.commit()
 
-        # Step 3: Retrieve and process all panel images from storage
-        storage = get_storage_service()
+        # Step 3: Retrieve and process all panel images from Cloudinary
         ocr_service = get_ocr_service()
 
-        raw_paths = inspection.image_paths or ([inspection.image_path] if inspection.image_path else [])
-        if not raw_paths:
+        raw_urls = inspection.image_urls or ([inspection.image_url] if inspection.image_url else [])
+        if not raw_urls:
             inspection.status = "failed"
-            inspection.error_message = "No packaging image paths found on inspection record."
+            inspection.error_message = "No packaging image URLs found on inspection record."
             db.commit()
             return {"status": "failed", "error": inspection.error_message}
 
@@ -51,16 +49,21 @@ def process_inspection(self, inspection_id: str):
         all_detections: list[dict] = []
         confidences: list[float] = []
         downloaded_count = 0
+        first_image_bytes = None
 
-        for idx, path in enumerate(raw_paths):
+        for idx, url in enumerate(raw_urls):
             try:
-                image_bytes = storage.download(path)
+                resp = requests.get(url, timeout=10.0)
+                if resp.status_code != 200:
+                    logger.warning(f"Failed to download image from {url}")
+                    continue
+                image_bytes = resp.content
+                if idx == 0:
+                    first_image_bytes = image_bytes
                 downloaded_count += 1
                 
-                # Run YOLOv8 to crop the image down to just the MRP panel (Two-Stage Pipeline)
-                cropped_bytes = yolo_service.crop_mrp_panel(image_bytes)
-                
-                ocr_res = ocr_service.extract_text(cropped_bytes)
+                # Directly process the raw image with OCR (No YOLO)
+                ocr_res = ocr_service.extract_text(image_bytes)
                 confidences.append(ocr_res.confidence)
                 
                 # Append panel transcript
@@ -72,13 +75,13 @@ def process_inspection(self, inspection_id: str):
                 if ocr_res.raw_detections:
                     all_detections.extend(ocr_res.raw_detections)
 
-                logger.info(f"Panel {idx + 1}/{len(raw_paths)} ({path}) OCR completed with {len(panel_lines)} lines.")
+                logger.info(f"Panel {idx + 1}/{len(raw_urls)} OCR completed with {len(panel_lines)} lines.")
             except Exception as ocr_err:
-                logger.warning(f"Error running OCR on panel {path}: {ocr_err}")
+                logger.warning(f"Error running OCR on panel {url}: {ocr_err}")
 
         if downloaded_count == 0:
             inspection.status = "failed"
-            inspection.error_message = "Unable to retrieve uploaded image from storage."
+            inspection.error_message = "Unable to retrieve uploaded image from Cloudinary."
             db.commit()
             return {"status": "failed", "error": inspection.error_message}
 
@@ -92,9 +95,8 @@ def process_inspection(self, inspection_id: str):
         avg_confidence = (sum(confidences) / len(confidences)) if confidences else 0.85
 
         # Step 5: Extract Fields across fused transcript or via Gemini
-        if gemini_extractor.enabled and raw_paths:
+        if gemini_extractor.enabled and first_image_bytes:
             logger.info("Using Gemini AI for multimodal data extraction...")
-            first_image_bytes = storage.download(raw_paths[0])
             extracted_data = gemini_extractor.extract_from_image(first_image_bytes)
             
             # Override OCR confidence because Gemini is extremely accurate 

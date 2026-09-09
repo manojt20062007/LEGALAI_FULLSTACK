@@ -110,6 +110,11 @@ class ComplianceResult(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class InspectionCreateRequest(BaseModel):
+    image_url: Optional[str] = None
+    image_urls: List[str] = Field(default_factory=list)
+
+
 class InspectionCreateResponse(BaseModel):
     id: str
     status: InspectionStatus
