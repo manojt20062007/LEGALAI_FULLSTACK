@@ -23,8 +23,9 @@ const DEFAULT_API_BASE_URL = (
 export function getApiBaseUrl(): string {
   if (typeof window !== "undefined") {
     const hostname = window.location.hostname;
+    // If we are in production on Vercel (or any non-localhost domain), use the Next.js proxy
     if (hostname !== "localhost" && hostname !== "127.0.0.1") {
-      return `http://${hostname}:8000`;
+      return "/api/proxy";
     }
   }
   return DEFAULT_API_BASE_URL;

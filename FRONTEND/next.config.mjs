@@ -22,6 +22,14 @@ const nextConfig = {
       }
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/proxy/:path*',
+        destination: `${process.env.NEXT_PUBLIC_API_BASE_URL}/:path*`, // Proxy to AWS Backend
+      },
+    ];
+  },
 };
 
 export default nextConfig;
