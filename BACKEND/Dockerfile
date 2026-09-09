@@ -25,8 +25,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Install Python dependencies
 COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
-
+# Install CPU-only PyTorch to prevent massive CUDA bloat, then install remaining requirements
+RUN pip install --upgrade pip && \
+    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu && \
+    pip install -r requirements.txt
 # Copy application codebase
 COPY . .
 
