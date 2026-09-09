@@ -12,6 +12,11 @@ import { useAuth } from "@/components/auth/AuthProvider";
 export function Navbar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  
+  if (pathname === "/login") {
+    return null;
+  }
+  
   const [backendStatus, setBackendStatus] = useState<{
     checked: boolean;
     online: boolean;

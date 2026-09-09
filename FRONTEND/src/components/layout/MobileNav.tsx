@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 
 export function MobileNav() {
   const pathname = usePathname();
+  if (pathname === "/login") return null;
 
   const navItems = [
     { href: "/", label: "Home", icon: Home },
