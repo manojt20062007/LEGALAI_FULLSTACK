@@ -178,6 +178,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
           {/* Raw Extracted OCR Text Card */}
           <ExtractedTextCard
             text={result?.ocr_text || (inspection as any).ocr_text || ""}
+            geminiData={result?.product}
           />
         </div>
 

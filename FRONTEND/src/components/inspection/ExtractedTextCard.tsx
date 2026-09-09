@@ -8,9 +8,10 @@ import { Button } from "../ui/Button";
 interface ExtractedTextCardProps {
   text?: string;
   confidence?: number;
+  geminiData?: any;
 }
 
-export function ExtractedTextCard({ text = "", confidence }: ExtractedTextCardProps) {
+export function ExtractedTextCard({ text = "", confidence, geminiData }: ExtractedTextCardProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -65,16 +66,28 @@ export function ExtractedTextCard({ text = "", confidence }: ExtractedTextCardPr
         </div>
       </CardHeader>
 
-      <CardContent className="p-4 sm:p-5">
-        {text ? (
-          <div className="bg-slate-950 text-slate-200 p-4 rounded-xl font-mono text-xs sm:text-sm leading-relaxed max-h-[300px] overflow-y-auto whitespace-pre-wrap selection:bg-blue-600 selection:text-white border border-slate-800 shadow-inner">
-            {text}
+      <CardContent className="p-4 sm:p-5 space-y-4">
+        {geminiData && (
+          <div>
+            <h4 className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wider">Gemini Structured Output (JSON)</h4>
+            <div className="bg-slate-900 text-green-400 p-4 rounded-xl font-mono text-xs sm:text-sm leading-relaxed max-h-[300px] overflow-y-auto whitespace-pre-wrap selection:bg-blue-600 selection:text-white border border-slate-800 shadow-inner">
+              {JSON.stringify(geminiData, null, 2)}
+            </div>
           </div>
-        ) : (
-          <p className="text-sm text-slate-500 italic py-4 text-center">
-            No OCR text available for this inspection.
-          </p>
         )}
+        
+        <div>
+          <h4 className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wider">EasyOCR Raw Text</h4>
+          {text ? (
+            <div className="bg-slate-950 text-slate-200 p-4 rounded-xl font-mono text-xs sm:text-sm leading-relaxed max-h-[300px] overflow-y-auto whitespace-pre-wrap selection:bg-blue-600 selection:text-white border border-slate-800 shadow-inner">
+              {text}
+            </div>
+          ) : (
+            <p className="text-sm text-slate-500 italic py-4 text-center">
+              No OCR text available for this inspection.
+            </p>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
