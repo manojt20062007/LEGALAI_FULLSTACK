@@ -16,7 +16,6 @@ from app.schemas.inspection import (
     ComplianceResult,
 )
 from app.services.storage import get_storage_service
-from app.services.reports.generator import ReportGenerator
 
 logger = logging.getLogger(__name__)
 
