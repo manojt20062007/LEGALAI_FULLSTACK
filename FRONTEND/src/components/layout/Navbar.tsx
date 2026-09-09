@@ -3,13 +3,15 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ShieldCheck, PlusCircle, LayoutDashboard, FileText, BookOpen, Activity, AlertCircle } from "lucide-react";
+import { ShieldCheck, PlusCircle, LayoutDashboard, FileText, BookOpen, Activity, AlertCircle, Users } from "lucide-react";
 import { checkBackendHealth, getApiBaseUrl, isMockMode } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
 import { Badge } from "../ui/Badge";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 export function Navbar() {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
   const [backendStatus, setBackendStatus] = useState<{
     checked: boolean;
     online: boolean;
@@ -101,30 +103,39 @@ export function Navbar() {
 
         {/* Status indicator, Role Switcher, and CTA */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* RBAC Role Switcher */}
-          <div className="flex items-center">
-            <select
-              aria-label="User Role"
-              defaultValue="inspector"
-              onChange={(e) => {
-                const role = e.target.value;
-                if (typeof window !== "undefined") {
-                  localStorage.setItem("user_role", role);
-                  window.dispatchEvent(new Event("storage"));
-                }
-              }}
-              className="text-xs font-semibold px-2 py-1 bg-slate-100 border border-slate-300 rounded-lg text-slate-700 cursor-pointer hover:bg-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              <option value="inspector">🛡️ Inspector</option>
-              <option value="admin">⚙️ Admin</option>
-              <option value="public_viewer">👤 Citizen</option>
-            </select>
+          {/* User Profile & Logout */}
+          <div className="flex items-center gap-3">
+            {user && user.role === "admin" && (
+              <Link
+                href="/admin/officers"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors"
+              >
+                <Users className="w-4 h-4" />
+                Officers
+              </Link>
+            )}
+            {user && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-slate-600 hidden sm:block">
+                  {user.email}
+                </span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 uppercase border border-slate-200">
+                  {user.role}
+                </span>
+                <button
+                  onClick={logout}
+                  className="text-xs font-medium text-slate-500 hover:text-red-600 transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Backend / Mock Status Indicator */}
           <div
             title={`Backend: ${getApiBaseUrl()} (${backendStatus.message})`}
-            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-slate-200 bg-slate-50 text-xs text-slate-600"
+            className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-slate-200 bg-slate-50 text-xs text-slate-600"
           >
             {mockActive ? (
               <>

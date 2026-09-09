@@ -1,59 +1,32 @@
 from enum import Enum
 from typing import List, Optional
-from fastapi import Header, HTTPException, status, Depends
-from pydantic import BaseModel
+from fastapi import HTTPException, status, Depends
+from sqlalchemy.orm import Session
 
+from app.core.security import get_current_user as get_real_current_user
+from app.db.models import User
 
 class UserRole(str, Enum):
     ADMIN = "admin"
-    INSPECTOR = "inspector"
+    INSPECTOR = "officer" # mapped to officer
     PUBLIC_VIEWER = "public_viewer"
 
+class AuthUser:
+    def __init__(self, user: User):
+        self.user_id = user.id
+        self.name = user.email
+        self.role = UserRole(user.role if user.role in [r.value for r in UserRole] else "officer")
+        self.department = "Department of Consumer Affairs (DoCA)"
+        
+    @property
+    def email(self):
+        return self.name
 
-class AuthUser(BaseModel):
-    user_id: str
-    name: str
-    role: UserRole
-    department: Optional[str] = "Department of Consumer Affairs (DoCA)"
-
-
-def get_current_user(
-    x_user_role: Optional[str] = Header(default="inspector", alias="X-User-Role"),
-    authorization: Optional[str] = Header(default=None, alias="Authorization"),
-) -> AuthUser:
+def get_current_user(user: User = Depends(get_real_current_user)) -> AuthUser:
     """
-    FastAPI dependency to extract and validate the authenticated user and their RBAC role.
-    Supports both X-User-Role header and standard Bearer tokens.
-    Defaults to inspector for developer convenience and SIH live demonstrations.
+    Returns the currently authenticated user wrapped in the AuthUser schema.
     """
-    role_str = (x_user_role or "inspector").lower().strip()
-    
-    if authorization and authorization.startswith("Bearer "):
-        token = authorization.split(" ")[1].lower()
-        if "admin" in token:
-            role_str = "admin"
-        elif "viewer" in token or "citizen" in token:
-            role_str = "public_viewer"
-        else:
-            role_str = "inspector"
-
-    try:
-        user_role = UserRole(role_str)
-    except ValueError:
-        user_role = UserRole.PUBLIC_VIEWER
-
-    user_names = {
-        UserRole.ADMIN: "Super Admin (Legal Metrology Division)",
-        UserRole.INSPECTOR: "Senior Legal Metrology Officer",
-        UserRole.PUBLIC_VIEWER: "Citizen Consumer / Public User",
-    }
-
-    return AuthUser(
-        user_id=f"usr_{user_role.value}_001",
-        name=user_names.get(user_role, "Authenticated User"),
-        role=user_role,
-    )
-
+    return AuthUser(user)
 
 def require_role(allowed_roles: List[UserRole]):
     """

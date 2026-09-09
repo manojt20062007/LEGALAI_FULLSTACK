@@ -8,10 +8,28 @@ def get_utc_now():
     return datetime.now(timezone.utc)
 
 
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()), index=True)
+    email = Column(String(255), unique=True, index=True, nullable=False)
+    hashed_password = Column(String(255), nullable=False)
+    role = Column(String(50), default="officer", nullable=False) # 'admin' or 'officer'
+    created_at = Column(DateTime(timezone=True), default=get_utc_now, nullable=False)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "email": self.email,
+            "role": self.role,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }
+
 class Inspection(Base):
     __tablename__ = "inspections"
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()), index=True)
+    user_id = Column(String(36), nullable=True) # Temporarily nullable for backward compatibility
     status = Column(String(20), nullable=False, default="queued", index=True)
     image_path = Column(String(512), nullable=True)   # nullable — multi-panel uploads may have no single primary path
     image_url = Column(String(1024), nullable=True)
@@ -33,6 +51,7 @@ class Inspection(Base):
     def to_dict(self):
         return {
             "id": self.id,
+            "user_id": self.user_id,
             "status": self.status,
             "image_path": self.image_path,
             "image_url": self.image_url,

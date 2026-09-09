@@ -50,16 +50,23 @@ export async function apiClient<T>(endpoint: string, options: RequestOptions = {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-  const roleHeader = typeof window !== "undefined" ? (localStorage.getItem("user_role") || "inspector") : "inspector";
+  const roleHeader = typeof window !== "undefined" ? (localStorage.getItem("user_role") || "officer") : "officer";
+  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+
+  const requestHeaders: Record<string, string> = {
+    Accept: "application/json",
+    "X-User-Role": roleHeader,
+    ...headers as Record<string, string>,
+  };
+
+  if (token) {
+    requestHeaders["Authorization"] = `Bearer ${token}`;
+  }
 
   try {
     const response = await fetch(url, {
       ...restOptions,
-      headers: {
-        Accept: "application/json",
-        "X-User-Role": roleHeader,
-        ...headers,
-      },
+      headers: requestHeaders,
       signal: controller.signal,
     });
 

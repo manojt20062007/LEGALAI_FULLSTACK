@@ -91,8 +91,11 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 
+from app.api.routes.auth import router as auth_router
+
 # Register Routers
 app.include_router(health_router)
+app.include_router(auth_router, prefix=settings.API_V1_STR)
 app.include_router(inspections_router, prefix=settings.API_V1_STR)
 
 

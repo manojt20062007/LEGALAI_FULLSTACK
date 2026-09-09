@@ -18,6 +18,11 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"
     DEBUG: bool = True
     API_V1_STR: str = "/api/v1"
+    
+    # Auth
+    SECRET_KEY: str = "a-very-secret-key-for-development-only-change-in-prod"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7 # 7 days
 
     # Database
     DATABASE_URL: str = "sqlite:///./lmverify.db"

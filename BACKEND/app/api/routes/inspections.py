@@ -12,6 +12,7 @@ from app.schemas.inspection import (
 )
 from app.services.inspection_service import InspectionService
 from app.core.config import settings
+from app.core.rbac import get_current_user, AuthUser, UserRole
 
 router = APIRouter(tags=["Inspections"])
 
@@ -25,6 +26,7 @@ router = APIRouter(tags=["Inspections"])
 async def create_inspection(
     request: InspectionCreateRequest,
     db: Session = Depends(get_db),
+    current_user: AuthUser = Depends(get_current_user),
 ):
     """
     Initiates multi-angle OCR extraction, fusion, and Legal Metrology compliance evaluation
@@ -44,7 +46,7 @@ async def create_inspection(
             detail="At least one image URL ('image_url' or 'image_urls') must be provided.",
         )
 
-    return InspectionService.create_inspection(db=db, image_urls=urls_to_process)
+    return InspectionService.create_inspection(db=db, image_urls=urls_to_process, user_id=current_user.user_id)
 
 
 @router.get(
@@ -58,11 +60,13 @@ def list_inspections(
     status: Optional[str] = Query(None, description="Filter by inspection status"),
     search: Optional[str] = Query(None, description="Search by product name or brand (case-insensitive)"),
     db: Session = Depends(get_db),
+    current_user: AuthUser = Depends(get_current_user),
 ):
     """
     List historical inspection audits with pagination, status filters, and product/brand search.
     """
-    return InspectionService.list_inspections(db=db, limit=limit, offset=offset, status_filter=status, search=search)
+    user_id_filter = None if current_user.role == UserRole.ADMIN else current_user.user_id
+    return InspectionService.list_inspections(db=db, limit=limit, offset=offset, status_filter=status, search=search, user_id=user_id_filter)
 
 
 @router.get(
@@ -86,35 +90,21 @@ def get_inspection_stats(
 def get_inspection(
     inspection_id: str,
     db: Session = Depends(get_db),
+    current_user: AuthUser = Depends(get_current_user),
 ):
     """
     Retrieve inspection progress, extracted product data, and Legal Metrology compliance rule findings.
     """
-    return InspectionService.get_inspection(db=db, inspection_id=inspection_id)
+    inspection = InspectionService.get_inspection(db=db, inspection_id=inspection_id)
+    # The returned object is a Pydantic model (InspectionDetailResponse).
+    # We need to fetch the DB object to check ownership since user_id is not in the response model.
+    from app.db.models import Inspection
+    db_insp = db.query(Inspection).filter(Inspection.id == inspection_id).first()
+    if db_insp and current_user.role != UserRole.ADMIN and db_insp.user_id != current_user.user_id:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to view this inspection")
+    return inspection
 
 
 
-from app.core.rbac import get_current_user, AuthUser, UserRole
 
-@router.get(
-    "/auth/me",
-    summary="Get current user authentication profile and RBAC role",
-)
-def get_current_user_profile(
-    current_user: AuthUser = Depends(get_current_user),
-):
-    """
-    Returns the current session role (Admin, Inspector, Public Viewer) and authorized capabilities.
-    """
-    capabilities = {
-        UserRole.ADMIN: ["upload", "inspect", "override_rules", "view_audit_logs", "export_reports", "manage_rules"],
-        UserRole.INSPECTOR: ["upload", "inspect", "view_history", "export_reports", "issue_notices"],
-        UserRole.PUBLIC_VIEWER: ["upload", "inspect", "view_report_summary"],
-    }
-    return {
-        "user_id": current_user.user_id,
-        "name": current_user.name,
-        "role": current_user.role.value,
-        "department": current_user.department,
-        "capabilities": capabilities.get(current_user.role, []),
-    }

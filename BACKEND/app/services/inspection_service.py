@@ -67,7 +67,7 @@ class InspectionService:
 
     @classmethod
     def create_inspection(
-        cls, db: Session, image_urls: List[str]
+        cls, db: Session, image_urls: List[str], user_id: Optional[str] = None
     ) -> InspectionCreateResponse:
         """Create inspection supporting 1 to N Cloudinary URLs and dispatch processing."""
         if not image_urls:
@@ -84,6 +84,7 @@ class InspectionService:
         # Create database record
         inspection = Inspection(
             id=inspection_id,
+            user_id=user_id,
             status=InspectionStatus.QUEUED.value,
             image_path=primary_url, # Fallback compat
             image_url=primary_url,
@@ -165,9 +166,12 @@ class InspectionService:
         offset: int = 0,
         status_filter: Optional[str] = None,
         search: Optional[str] = None,
+        user_id: Optional[str] = None,
     ):
-        """Retrieve recent inspections with optional status and search filtering."""
+        """Retrieve recent inspections with optional status, search filtering, and user isolation."""
         query = db.query(Inspection).order_by(Inspection.created_at.desc())
+        if user_id:
+            query = query.filter(Inspection.user_id == user_id)
         if status_filter:
             query = query.filter(Inspection.status == status_filter)
         if search:
