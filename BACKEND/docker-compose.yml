@@ -29,7 +29,7 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,https://legalai.vercel.app
+      - CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,https://pclegal.vercel.app
     depends_on:
       redis:
         condition: service_healthy
