@@ -26,8 +26,8 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
-      - OCR_PROVIDER=mock
-      - CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,https://sih-legalai.vercel.app
     depends_on:
       redis:
         condition: service_healthy
@@ -43,7 +43,7 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
-      - OCR_PROVIDER=mock
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
     depends_on:
       redis:
         condition: service_healthy
