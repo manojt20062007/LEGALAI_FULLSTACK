@@ -1,0 +1,175 @@
+[
+  {
+    "rule_id": "LM-PC-001",
+    "name": "Maximum Retail Price (MRP) Declaration",
+    "description": "Mandatory declaration of the retail sale price of the package inclusive of all taxes in Indian Rupees.",
+    "field": "mrp",
+    "check_type": "REQUIRED_FIELD",
+    "severity": "ERROR",
+    "source": {
+      "document": "Legal Metrology (Packaged Commodities) Rules, 2011",
+      "reference": "Rule 6(1)(e)",
+      "source_url": "https://consumeraffairs.gov.in/pages/legal-metrology-act",
+      "version": "Consolidated Rules 2011",
+      "effective_from": "2011-04-01"
+    },
+    "enabled": true,
+    "parameters": {
+      "min_length": 1,
+      "pattern": "(?:₹|Rs\\.?|INR)?\\s*[0-9,]+(?:\\.[0-9]{1,2})?"
+    }
+  },
+  {
+    "rule_id": "LM-PC-002",
+    "name": "Net Quantity Declaration",
+    "description": "Mandatory declaration of the net quantity in terms of standard unit of weight, measure, or number.",
+    "field": "net_quantity",
+    "check_type": "REQUIRED_FIELD",
+    "severity": "ERROR",
+    "source": {
+      "document": "Legal Metrology (Packaged Commodities) Rules, 2011",
+      "reference": "Rule 6(1)(d) & Rule 11",
+      "source_url": "https://consumeraffairs.gov.in/pages/legal-metrology-act",
+      "version": "Consolidated Rules 2011",
+      "effective_from": "2011-04-01"
+    },
+    "enabled": true,
+    "parameters": {
+      "require_unit": true,
+      "valid_units": ["g", "kg", "ml", "l", "m", "cm", "mm", "n", "u", "pieces", "count"]
+    }
+  },
+  {
+    "rule_id": "LM-PC-003",
+    "name": "Manufacturer / Packer / Importer Details",
+    "description": "Mandatory declaration of the name and complete address of the manufacturer, packer, or importer.",
+    "field": "manufacturer",
+    "check_type": "REQUIRED_FIELD",
+    "severity": "ERROR",
+    "source": {
+      "document": "Legal Metrology (Packaged Commodities) Rules, 2011",
+      "reference": "Rule 6(1)(a)",
+      "source_url": "https://consumeraffairs.gov.in/pages/legal-metrology-act",
+      "version": "Consolidated Rules 2011",
+      "effective_from": "2011-04-01"
+    },
+    "enabled": true,
+    "parameters": {
+      "min_length": 6
+    }
+  },
+  {
+    "rule_id": "LM-PC-004",
+    "name": "Country of Origin Declaration",
+    "description": "Mandatory declaration of the Country of Origin for imported and domestic packaged commodities.",
+    "field": "country_of_origin",
+    "check_type": "REQUIRED_FIELD",
+    "severity": "ERROR",
+    "source": {
+      "document": "Legal Metrology (Packaged Commodities) Rules, 2011",
+      "reference": "Rule 6(10) (inserted via Amendment Rules, 2017)",
+      "source_url": "https://consumeraffairs.gov.in/pages/legal-metrology-act",
+      "version": "Amendment Rules 2017",
+      "effective_from": "2018-01-01"
+    },
+    "enabled": true,
+    "parameters": {
+      "min_length": 2
+    }
+  },
+  {
+    "rule_id": "LM-PC-005",
+    "name": "Consumer Care / Contact Information",
+    "description": "Mandatory declaration of the name, address, telephone number, or email address of the person/office to contact for consumer complaints.",
+    "field": "consumer_care",
+    "check_type": "REQUIRED_FIELD",
+    "severity": "WARNING",
+    "source": {
+      "document": "Legal Metrology (Packaged Commodities) Rules, 2011",
+      "reference": "Rule 6(1)(g)",
+      "source_url": "https://consumeraffairs.gov.in/pages/legal-metrology-act",
+      "version": "Consolidated Rules 2011",
+      "effective_from": "2011-04-01"
+    },
+    "enabled": true,
+    "parameters": {
+      "min_length": 4
+    }
+  },
+  {
+    "rule_id": "LM-PC-006",
+    "name": "Standard Metric Measurement Unit",
+    "description": "Verification that the declared unit of measurement conforms to the standard units prescribed under Schedule II.",
+    "field": "unit",
+    "check_type": "FIELD_VALUE",
+    "severity": "WARNING",
+    "source": {
+      "document": "Legal Metrology (Packaged Commodities) Rules, 2011",
+      "reference": "Rule 11 & Schedule II",
+      "source_url": "https://consumeraffairs.gov.in/pages/legal-metrology-act",
+      "version": "Consolidated Rules 2011",
+      "effective_from": "2011-04-01"
+    },
+    "enabled": true,
+    "parameters": {
+      "allowed_values": ["g", "kg", "ml", "l", "m", "cm", "mm", "n", "u", "pieces", "count"]
+    }
+  },
+  {
+    "rule_id": "LM-PC-007",
+    "name": "Generic or Common Commodity Name",
+    "description": "Declaration of the generic or common name of the commodity contained in the package.",
+    "field": "product_name",
+    "check_type": "REQUIRED_FIELD",
+    "severity": "WARNING",
+    "source": {
+      "document": "Legal Metrology (Packaged Commodities) Rules, 2011",
+      "reference": "Rule 6(1)(b)",
+      "source_url": "https://consumeraffairs.gov.in/pages/legal-metrology-act",
+      "version": "Consolidated Rules 2011",
+      "effective_from": "2011-04-01"
+    },
+    "enabled": true,
+    "parameters": {
+      "min_length": 2
+    }
+  },
+  {
+    "rule_id": "LM-PC-008",
+    "name": "Month and Year of Manufacture / Packing / Import",
+    "description": "Mandatory declaration of the month and year in which the commodity is manufactured or pre-packed or imported.",
+    "field": "mfg_date",
+    "check_type": "REQUIRED_FIELD",
+    "severity": "ERROR",
+    "source": {
+      "document": "Legal Metrology (Packaged Commodities) Rules, 2011",
+      "reference": "Rule 6(1)(c)",
+      "source_url": "https://consumeraffairs.gov.in/pages/legal-metrology-act",
+      "version": "Consolidated Rules 2011",
+      "effective_from": "2011-04-01"
+    },
+    "enabled": true,
+    "parameters": {
+      "min_length": 3
+    }
+  },
+  {
+    "rule_id": "LM-PC-009",
+    "name": "Batch / Lot Number",
+    "description": "Mandatory declaration of the batch or lot number.",
+    "field": "batch_number",
+    "check_type": "REQUIRED_FIELD",
+    "severity": "WARNING",
+    "source": {
+      "document": "Legal Metrology (Packaged Commodities) Rules, 2011",
+      "reference": "Rule 6(1)(f)",
+      "source_url": "https://consumeraffairs.gov.in/pages/legal-metrology-act",
+      "version": "Consolidated Rules 2011",
+      "effective_from": "2011-04-01"
+    },
+    "enabled": true,
+    "parameters": {
+      "min_length": 2
+    }
+  }
+]
