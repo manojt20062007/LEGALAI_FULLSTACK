@@ -153,18 +153,7 @@ export function ReportView({ inspection }: ReportViewProps) {
             JSON
           </Button>
 
-          {/* Server-rendered PDF — has evidence photo + full formatting */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => downloadBackendReport("pdf", setDownloadingPdf)}
-            disabled={downloadingPdf}
-            className="text-xs text-blue-700 border-blue-200 hover:bg-blue-50"
-            title="Download server-rendered PDF with embedded evidence photo"
-          >
-            <Download className="w-3.5 h-3.5 mr-1 text-blue-600" />
-            {downloadingPdf ? "Generating…" : "PDF Download"}
-          </Button>
+
 
           <Button
             variant="primary"
@@ -216,6 +205,23 @@ export function ReportView({ inspection }: ReportViewProps) {
             </div>
           </div>
         </div>
+
+        {/* Evidence Photo */}
+        {(inspection.image_url || (inspection.image_urls && inspection.image_urls.length > 0)) && (
+          <div className="space-y-3">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 border-b border-slate-200 pb-1.5 flex items-center gap-2">
+              <span>Evidentiary Photograph</span>
+            </h3>
+            <div className="flex justify-center border border-slate-200 rounded-lg p-2 bg-slate-50">
+              <img 
+                src={inspection.image_urls?.[0] || inspection.image_url} 
+                alt="Product Label Evidence" 
+                className="max-h-64 object-contain rounded"
+                crossOrigin="anonymous"
+              />
+            </div>
+          </div>
+        )}
 
         {/* Executive Summary & Overall Compliance Banner */}
         <div className={`p-6 rounded-xl border ${statusCfg.border} ${statusCfg.bg} flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4`}>
