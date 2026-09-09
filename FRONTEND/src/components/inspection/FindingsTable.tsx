@@ -191,11 +191,13 @@ export function FindingsTable({ findings = [] }: FindingsTableProps) {
                     >
                       {statusCfg.label}
                     </span>
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium border ${severityCfg.badgeClass}`}
-                    >
-                      {severityCfg.label}
-                    </span>
+                    {status !== "PASS" && (
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium border ${severityCfg.badgeClass}`}
+                      >
+                        {severityCfg.label}
+                      </span>
+                    )}
                   </div>
                 </div>
               );
