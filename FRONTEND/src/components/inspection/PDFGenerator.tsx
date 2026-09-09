@@ -10,7 +10,7 @@ import {
   Image,
   PDFDownloadLink,
 } from "@react-pdf/renderer";
-import { Inspection, ComplianceResult } from "@/types/inspection";
+import { Inspection, InspectionResult } from "@/types/inspection";
 import { Button } from "@/components/ui/Button";
 import { Download } from "lucide-react";
 
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
 });
 
 const InspectionPDF = ({ inspection }: { inspection: Inspection }) => {
-  const result: ComplianceResult | undefined = inspection.result;
+  const result: InspectionResult | undefined | null = inspection.result;
 
   return (
     <Document>
@@ -127,24 +127,24 @@ const InspectionPDF = ({ inspection }: { inspection: Inspection }) => {
           <Text style={styles.sectionTitle}>Extracted Product Information</Text>
           <View style={styles.row}>
             <Text style={styles.colLabel}>Product Name</Text>
-            <Text style={styles.colValue}>{result?.product.product_name || "N/A"}</Text>
+            <Text style={styles.colValue}>{result?.product?.product_name || "N/A"}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.colLabel}>Brand</Text>
-            <Text style={styles.colValue}>{result?.product.brand || "N/A"}</Text>
+            <Text style={styles.colValue}>{result?.product?.brand || "N/A"}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.colLabel}>Net Quantity</Text>
-            <Text style={styles.colValue}>{result?.product.net_quantity || "N/A"}</Text>
+            <Text style={styles.colValue}>{result?.product?.net_quantity || "N/A"}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.colLabel}>MRP</Text>
-            <Text style={styles.colValue}>{result?.product.mrp || "N/A"}</Text>
+            <Text style={styles.colValue}>{result?.product?.mrp || "N/A"}</Text>
           </View>
           <View style={styles.row}>
             <Text style={styles.colLabel}>Manufacturer</Text>
             <Text style={styles.colValue}>
-              {result?.product.manufacturer_details || "N/A"}
+              {result?.product?.manufacturer_details || "N/A"}
             </Text>
           </View>
         </View>
@@ -152,7 +152,7 @@ const InspectionPDF = ({ inspection }: { inspection: Inspection }) => {
         {/* Rule Checks */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Compliance Rule Checks</Text>
-          {result?.rule_evaluations?.map((rule, idx) => (
+          {result?.findings?.map((rule, idx) => (
             <View key={idx} style={styles.ruleRow}>
               <Text style={styles.ruleName}>{rule.rule_id}</Text>
               <Text style={styles.ruleDesc}>{rule.message}</Text>
