@@ -31,24 +31,6 @@ services:
       timeout: 5s
       retries: 5
 
-  minio:
-    image: minio/minio:latest
-    container_name: lmverify_minio
-    command: server /data --console-address ":9001"
-    environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadminpassword
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    volumes:
-      - minio_data:/data
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   backend:
     build:
       context: .
@@ -62,12 +44,6 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
-      - STORAGE_PROVIDER=minio
-      - STORAGE_ENDPOINT=minio:9000
-      - STORAGE_ACCESS_KEY=minioadmin
-      - STORAGE_SECRET_KEY=minioadminpassword
-      - STORAGE_BUCKET=lm-verify-images
-      - STORAGE_SECURE=False
       - OCR_PROVIDER=mock
       - CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
     depends_on:
@@ -75,11 +51,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      minio:
-        condition: service_healthy
-    volumes:
-      - ./uploads:/app/uploads
-      - ./reports:/app/reports
 
   celery_worker:
     build:
@@ -93,24 +64,13 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
-      - STORAGE_PROVIDER=minio
-      - STORAGE_ENDPOINT=minio:9000
-      - STORAGE_ACCESS_KEY=minioadmin
-      - STORAGE_SECRET_KEY=minioadminpassword
-      - STORAGE_BUCKET=lm-verify-images
-      - STORAGE_SECURE=False
       - OCR_PROVIDER=mock
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-      minio:
-        condition: service_healthy
-    volumes:
-      - ./uploads:/app/uploads
 
 volumes:
   postgres_data:
   redis_data:
-  minio_data:
