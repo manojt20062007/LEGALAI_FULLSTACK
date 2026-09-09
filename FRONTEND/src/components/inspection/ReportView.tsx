@@ -217,7 +217,6 @@ export function ReportView({ inspection }: ReportViewProps) {
                 src={inspection.image_urls?.[0] || inspection.image_url} 
                 alt="Product Label Evidence" 
                 className="max-h-64 object-contain rounded"
-                crossOrigin="anonymous"
               />
             </div>
           </div>
