@@ -128,7 +128,7 @@ def process_inspection(self, inspection_id: str):
 
         db.commit()
 
-        logger.info(f"Completed multi-panel inspection {inspection_id} successfully across {len(raw_paths)} panels. Overall Status: {compliance_result.overall_status}")
+        logger.info(f"Completed multi-panel inspection {inspection_id} successfully across {len(raw_urls)} panels. Overall Status: {compliance_result.overall_status}")
         return {"status": "completed", "overall_status": compliance_result.overall_status}
 
     except Exception as exc:
