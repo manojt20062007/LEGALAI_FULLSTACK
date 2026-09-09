@@ -34,6 +34,10 @@ class LocalStorageService(StorageService):
             return f.read()
 
     def get_url(self, storage_path: str) -> str:
+        # If the path is already an absolute URL (like Cloudinary), return it as-is
+        if storage_path.startswith("http://") or storage_path.startswith("https://") or storage_path.startswith("data:"):
+            return storage_path
+            
         # Returns the API file serving URL or relative path
         safe_name = os.path.basename(storage_path)
         return f"/api/v1/storage/files/{safe_name}"
