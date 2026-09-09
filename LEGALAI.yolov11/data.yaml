@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 7
+names: ['brand_panel', 'consumer_care', 'manufacturer', 'mfg_date', 'mrp', 'net_qty', 'origin']
+
+roboflow:
+  workspace: manoj-pathapati
+  project: legalai
+  version: dataset
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/manoj-pathapati/legalai/dataset/dataset

@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 6
+names: ['Brand', 'EXP_Date', 'Ingredients', 'MFG_Date', 'MRP', 'Product']
+
+roboflow:
+  workspace: manoj-pathapati
+  project: packed-commodities-s7pow
+  version: dataset
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/manoj-pathapati/packed-commodities-s7pow/dataset/dataset
