@@ -88,12 +88,7 @@ export function Footer() {
           <p className="text-slate-400">
             © {new Date().getFullYear()} LM-Verify. Automated Preliminary Assessment System.
           </p>
-          <div className="text-slate-400 text-center sm:text-right">
-            <span>FastAPI Backend: </span>
-            <code className="text-[11px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-700">
-              http://localhost:8000
-            </code>
-          </div>
+
         </div>
       </div>
     </footer>
