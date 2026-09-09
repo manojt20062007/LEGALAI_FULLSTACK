@@ -1,6 +1,5 @@
 # LM-Verify — Scan. Verify. Report.
 
-[![Smart India Hackathon](https://img.shields.io/badge/SIH-2024-blue.svg)](https://sih.gov.in)
 [![Next.js](https://img.shields.io/badge/Next.js-14.2-black.svg)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue.svg)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-3.4-38bdf8.svg)](https://tailwindcss.com/)

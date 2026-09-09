@@ -28,10 +28,10 @@ export default function LandingPage() {
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#e2e8f015_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f015_1px,transparent_1px)] bg-[size:32px_32px]"></div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
-          {/* SIH / LMPC Badge */}
+          {/* LMPC Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-800 text-xs sm:text-sm font-semibold shadow-xs">
             <Scale className="w-4 h-4 text-blue-700" />
-            <span>Smart India Hackathon Prototype • Legal Metrology (PC) Rules, 2011</span>
+            <span>Legal Metrology (PC) Rules, 2011 Compliance</span>
           </div>
 
           {/* Headline & Tagline */}

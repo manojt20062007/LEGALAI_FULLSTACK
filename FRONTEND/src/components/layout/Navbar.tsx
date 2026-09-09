@@ -70,9 +70,6 @@ export function Navbar() {
                 <span className="font-bold text-lg text-slate-900 tracking-tight">
                   LM-Verify
                 </span>
-                <span className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-semibold bg-blue-100 text-blue-800 rounded">
-                  SIH 2024
-                </span>
               </div>
               <span className="text-[11px] text-slate-500 font-medium -mt-1 hidden sm:block">
                 Legal Metrology Compliance

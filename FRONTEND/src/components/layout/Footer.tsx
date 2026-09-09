@@ -28,7 +28,7 @@ export function Footer() {
             </p>
             <div className="flex items-center gap-2 text-slate-400">
               <Scale className="w-3.5 h-3.5" />
-              <span>Smart India Hackathon Prototype (V1 MVP)</span>
+              <span>Prototype (V1 MVP)</span>
             </div>
           </div>
 

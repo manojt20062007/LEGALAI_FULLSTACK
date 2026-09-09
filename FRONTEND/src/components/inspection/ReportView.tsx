@@ -433,7 +433,7 @@ export function ReportView({ inspection }: ReportViewProps) {
         <div className="pt-6 border-t border-slate-200 flex justify-between items-end text-xs text-slate-500">
           <div>
             <div>System: LM-Verify Automated Inspection Pipeline v1.0</div>
-            <div>Smart India Hackathon 2024 Packaged Commodities Verification</div>
+            <div>Packaged Commodities Verification</div>
           </div>
           <div className="text-right">
             <div className="font-mono">Verification Token: {inspection.id.toLowerCase()}-sec-v1</div>

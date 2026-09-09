@@ -6,7 +6,7 @@
 
 ## 🎯 Overview
 
-**LM-Verify** is an AI-assisted compliance engine designed for the **Smart India Hackathon**. It automates the inspection of packaged goods by scanning product labels, extracting mandatory statutory declarations, and validating them against the **Legal Metrology (Packaged Commodities) Rules, 2011**.
+**LM-Verify** is an AI-assisted compliance engine. It automates the inspection of packaged goods by scanning product labels, extracting mandatory statutory declarations, and validating them against the **Legal Metrology (Packaged Commodities) Rules, 2011**.
 
 ### V1 End-to-End Workflow:
 ```

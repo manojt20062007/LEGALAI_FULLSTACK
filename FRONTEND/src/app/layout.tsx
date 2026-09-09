@@ -26,8 +26,6 @@ export const metadata: Metadata = {
     "Packaged Commodities Rules 2011",
     "LMPC Compliance",
     "Label Verification",
-    "Smart India Hackathon",
-    "SIH",
     "Consumer Protection",
     "OCR Compliance",
   ],
