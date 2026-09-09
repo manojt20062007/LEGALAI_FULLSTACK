@@ -11,14 +11,8 @@ class MockOCRAdapter(OCRService):
     """
 
     DEFAULT_COMPLIANT_LABEL = """
-PRODUCT: Himalayan Natural Spring Water
-BRAND: AquaPure
-MANUFACTURED BY: AquaPure Beverages India Pvt. Ltd., Plot No. 42, Sector 5, Haridwar, Uttarakhand - 249403
-NET QUANTITY: 1000 ml (1 L)
-MRP: Rs. 45.00 (INCL. OF ALL TAXES)
-MONTH & YEAR OF MFG: 01/2026
-COUNTRY OF ORIGIN: India
-CONSUMER CARE: Toll Free: 1800-200-9999 | Email: customercare@aquapure.in
+[OCR Pipeline Bypassed]
+Text extraction and analysis is being handled natively by Gemini Multimodal Vision AI.
     """.strip()
 
     NON_COMPLIANT_MISSING_MRP = """
