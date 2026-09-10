@@ -26,7 +26,7 @@ import { StatusBanner } from "@/components/inspection/StatusBanner";
 import { ProductInfoCard } from "@/components/inspection/ProductInfoCard";
 import { FindingsTable } from "@/components/inspection/FindingsTable";
 import { ExtractedTextCard } from "@/components/inspection/ExtractedTextCard";
-import { PDFGenerator } from "@/components/inspection/PDFGenerator";
+
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Alert } from "@/components/ui/Alert";
@@ -151,7 +151,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
         <div className="flex flex-wrap items-center gap-2">
           {/* Client-Side PDF Generation */}
           {inspection.result && (
-            <PDFGenerator inspection={inspection} />
+
           )}
 
           <Link href="/inspection/new">
