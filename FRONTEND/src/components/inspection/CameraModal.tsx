@@ -115,19 +115,44 @@ export function CameraModal({ isOpen, onClose, onCapture }: CameraModalProps) {
       ? `Lat: ${location.lat.toFixed(6)}, Lng: ${location.lng.toFixed(6)}`
       : "Location: Not Verified";
     
-    const watermarkText = `Timestamp: ${timestamp} | ${geoText}`;
-    
-    // Draw semi-transparent background
+    const isPortrait = width < height;
     ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
-    const stripHeight = Math.max(40, Math.floor(height * 0.05));
-    ctx.fillRect(0, height - stripHeight, width, stripHeight);
     
-    // Draw text
-    ctx.fillStyle = "white";
-    const fontSize = Math.max(14, Math.floor(stripHeight * 0.5));
-    ctx.font = `${fontSize}px monospace`;
-    ctx.textBaseline = "middle";
-    ctx.fillText(watermarkText, 20, height - (stripHeight / 2));
+    if (isPortrait) {
+      // Two lines for narrow screens
+      const stripHeight = Math.max(60, Math.floor(height * 0.08));
+      ctx.fillRect(0, height - stripHeight, width, stripHeight);
+      
+      ctx.fillStyle = "white";
+      let fontSize = Math.max(12, Math.floor(stripHeight * 0.3));
+      
+      ctx.font = `${fontSize}px monospace`;
+      while (ctx.measureText(`Timestamp: ${timestamp}`).width > width - 40 && fontSize > 8) {
+        fontSize--;
+        ctx.font = `${fontSize}px monospace`;
+      }
+
+      ctx.textBaseline = "middle";
+      ctx.fillText(`Timestamp: ${timestamp}`, 20, height - (stripHeight * 0.65));
+      ctx.fillText(geoText, 20, height - (stripHeight * 0.35));
+    } else {
+      // Single line for landscape
+      const watermarkText = `Timestamp: ${timestamp} | ${geoText}`;
+      const stripHeight = Math.max(40, Math.floor(height * 0.05));
+      ctx.fillRect(0, height - stripHeight, width, stripHeight);
+      
+      ctx.fillStyle = "white";
+      let fontSize = Math.max(12, Math.floor(stripHeight * 0.5));
+      
+      ctx.font = `${fontSize}px monospace`;
+      while (ctx.measureText(watermarkText).width > width - 40 && fontSize > 8) {
+        fontSize--;
+        ctx.font = `${fontSize}px monospace`;
+      }
+      
+      ctx.textBaseline = "middle";
+      ctx.fillText(watermarkText, 20, height - (stripHeight / 2));
+    }
   };
 
   const handleCapture = () => {
