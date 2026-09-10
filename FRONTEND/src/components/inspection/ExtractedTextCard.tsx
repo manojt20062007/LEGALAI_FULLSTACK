@@ -35,7 +35,7 @@ export function ExtractedTextCard({ text = "", confidence, geminiData }: Extract
           <div className="flex items-center gap-2">
             <FileCode className="w-5 h-5 text-blue-700" />
             <CardTitle className="text-base font-bold text-slate-900">
-              Raw Extracted Label Text (OCR Output)
+              Extracted Label Data
             </CardTitle>
           </div>
 
@@ -66,28 +66,16 @@ export function ExtractedTextCard({ text = "", confidence, geminiData }: Extract
         </div>
       </CardHeader>
 
-      <CardContent className="p-4 sm:p-5 space-y-4">
-        {geminiData && (
-          <div>
-            <h4 className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wider">Gemini Structured Output (JSON)</h4>
-            <div className="bg-slate-900 text-green-400 p-4 rounded-xl font-mono text-xs sm:text-sm leading-relaxed max-h-[300px] overflow-y-auto whitespace-pre-wrap selection:bg-blue-600 selection:text-white border border-slate-800 shadow-inner">
-              {JSON.stringify(geminiData, null, 2)}
-            </div>
+      <CardContent className="p-4 sm:p-5">
+        {geminiData ? (
+          <div className="bg-slate-900 text-green-400 p-4 rounded-xl font-mono text-xs sm:text-sm leading-relaxed max-h-[300px] overflow-y-auto whitespace-pre-wrap selection:bg-blue-600 selection:text-white border border-slate-800 shadow-inner">
+            {JSON.stringify(geminiData, null, 2)}
           </div>
+        ) : (
+          <p className="text-sm text-slate-500 italic py-4 text-center">
+            No structured data available for this inspection.
+          </p>
         )}
-        
-        <div>
-          <h4 className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wider">EasyOCR Raw Text</h4>
-          {text ? (
-            <div className="bg-slate-950 text-slate-200 p-4 rounded-xl font-mono text-xs sm:text-sm leading-relaxed max-h-[300px] overflow-y-auto whitespace-pre-wrap selection:bg-blue-600 selection:text-white border border-slate-800 shadow-inner">
-              {text}
-            </div>
-          ) : (
-            <p className="text-sm text-slate-500 italic py-4 text-center">
-              No OCR text available for this inspection.
-            </p>
-          )}
-        </div>
       </CardContent>
     </Card>
   );
