@@ -404,14 +404,14 @@ export function ReportView({ inspection }: ReportViewProps) {
           </div>
         </div>
 
-        {/* Section 3: Extracted Text Snippet */}
-        {result?.ocr_text && (
+        {/* Section 3: Extracted Label Data */}
+        {result?.product && (
           <div className="space-y-2">
             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 border-b border-slate-200 pb-1.5">
-              3. Raw OCR Extraction Transcript
+              3. Extracted Label Data
             </h3>
-            <div className="bg-slate-50 border border-slate-200 p-3.5 rounded-lg font-mono text-[11px] text-slate-700 leading-relaxed max-h-36 overflow-y-auto">
-              {result.ocr_text}
+            <div className="bg-slate-50 border border-slate-200 p-3.5 rounded-lg font-mono text-[11px] text-slate-700 leading-relaxed max-h-48 overflow-y-auto">
+              {JSON.stringify(result.product, null, 2)}
             </div>
           </div>
         )}
