@@ -17,6 +17,8 @@ export function CameraModal({ isOpen, onClose, onCapture }: CameraModalProps) {
   const [facingMode, setFacingMode] = useState<"environment" | "user">("environment");
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [isStarting, setIsStarting] = useState(false);
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen) {
@@ -25,6 +27,25 @@ export function CameraModal({ isOpen, onClose, onCapture }: CameraModalProps) {
     }
 
     startCamera(facingMode);
+
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+          setLocationError(null);
+        },
+        (error) => {
+          console.warn("Geolocation error:", error);
+          setLocationError("Location access denied or unavailable. Image will be captured without verified geo-tag.");
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    } else {
+      setLocationError("Geolocation is not supported by your browser.");
+    }
 
     return () => {
       stopCamera();
@@ -88,6 +109,27 @@ export function CameraModal({ isOpen, onClose, onCapture }: CameraModalProps) {
     }
   };
 
+  const drawWatermark = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    const timestamp = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+    const geoText = location
+      ? `Lat: ${location.lat.toFixed(6)}, Lng: ${location.lng.toFixed(6)}`
+      : "Location: Not Verified";
+    
+    const watermarkText = `Timestamp: ${timestamp} | ${geoText}`;
+    
+    // Draw semi-transparent background
+    ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+    const stripHeight = Math.max(40, Math.floor(height * 0.05));
+    ctx.fillRect(0, height - stripHeight, width, stripHeight);
+    
+    // Draw text
+    ctx.fillStyle = "white";
+    const fontSize = Math.max(14, Math.floor(stripHeight * 0.5));
+    ctx.font = `${fontSize}px monospace`;
+    ctx.textBaseline = "middle";
+    ctx.fillText(watermarkText, 20, height - (stripHeight / 2));
+  };
+
   const handleCapture = () => {
     if (!videoRef.current || !canvasRef.current) return;
 
@@ -100,6 +142,7 @@ export function CameraModal({ isOpen, onClose, onCapture }: CameraModalProps) {
     if (!ctx) return;
 
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    drawWatermark(ctx, canvas.width, canvas.height);
 
     canvas.toBlob(
       (blob) => {
@@ -122,9 +165,35 @@ export function CameraModal({ isOpen, onClose, onCapture }: CameraModalProps) {
   const handleNativeCameraChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      stopCamera();
-      onCapture(file);
-      onClose();
+      
+      const img = new Image();
+      img.onload = () => {
+        if (!canvasRef.current) return;
+        const canvas = canvasRef.current;
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+        
+        ctx.drawImage(img, 0, 0);
+        drawWatermark(ctx, canvas.width, canvas.height);
+        
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) return;
+            const watermarkedFile = new File([blob], `label_scan_${Date.now()}.jpg`, {
+              type: "image/jpeg",
+              lastModified: Date.now(),
+            });
+            stopCamera();
+            onCapture(watermarkedFile);
+            onClose();
+          },
+          "image/jpeg",
+          0.95
+        );
+      };
+      img.src = URL.createObjectURL(file);
     }
   };
 
@@ -165,6 +234,12 @@ export function CameraModal({ isOpen, onClose, onCapture }: CameraModalProps) {
 
         {/* Viewfinder Window */}
         <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] bg-black flex items-center justify-center overflow-hidden">
+          {locationError && !cameraError && (
+            <div className="absolute top-2 left-2 right-2 z-20 bg-amber-500/90 text-white text-xs px-3 py-2 rounded-lg backdrop-blur-sm shadow-md flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{locationError}</span>
+            </div>
+          )}
           {cameraError ? (
             <div className="p-6 text-center text-slate-200 space-y-4 max-w-sm">
               <div className="w-12 h-12 rounded-full bg-blue-900/40 text-blue-400 flex items-center justify-center mx-auto border border-blue-700/50">

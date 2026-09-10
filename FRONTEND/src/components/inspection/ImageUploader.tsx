@@ -11,7 +11,7 @@ import {
   ShieldAlert,
   Sparkles,
   Camera,
-  Plus,
+  Camera,
   Layers,
   AlertTriangle,
   ZoomIn,
@@ -41,14 +41,13 @@ const PANEL_LABELS = [
 export function ImageUploader({ onUpload, isLoading = false }: ImageUploaderProps) {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
-  const [dragActive, setDragActive] = useState(false);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   // Quality warnings: one entry per selected file (null = ok, string = warning message)
   const [qualityWarnings, setQualityWarnings] = useState<(string | null)[]>([]);
   // Resolution info: "WxH" per file
   const [resolutions, setResolutions] = useState<string[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   /**
    * Analyse image quality using Canvas + a Laplacian blur variance score.
@@ -173,37 +172,7 @@ export function ImageUploader({ onUpload, isLoading = false }: ImageUploaderProp
     }
   };
 
-  const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  };
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const filesArray = Array.from(e.dataTransfer.files);
-      validateAndAddFiles(filesArray);
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    if (e.target.files && e.target.files.length > 0) {
-      const filesArray = Array.from(e.target.files);
-      validateAndAddFiles(filesArray);
-    }
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
 
   const handleRemoveOne = (index: number) => {
     if (previewUrls[index]) {
@@ -223,9 +192,6 @@ export function ImageUploader({ onUpload, isLoading = false }: ImageUploaderProp
     setQualityWarnings([]);
     setResolutions([]);
     setErrorMessage(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -245,42 +211,25 @@ export function ImageUploader({ onUpload, isLoading = false }: ImageUploaderProp
         </Alert>
       )}
 
-      {/* Hidden File Input supporting multiple files */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        multiple
-        accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
-        onChange={handleChange}
-        className="hidden"
-        id="product-image-input"
-      />
+
 
       {selectedFiles.length === 0 ? (
-        /* Empty State: Initial Drag & Drop Zone */
+        /* Empty State: Initial Camera Zone */
         <div
-          onDragEnter={handleDrag}
-          onDragLeave={handleDrag}
-          onDragOver={handleDrag}
-          onDrop={handleDrop}
-          onClick={() => fileInputRef.current?.click()}
-          className={`relative border-2 border-dashed rounded-2xl p-8 sm:p-12 text-center transition-all cursor-pointer group ${
-            dragActive
-              ? "border-blue-600 bg-blue-50/70 scale-[1.01]"
-              : "border-slate-300 hover:border-blue-500 bg-white hover:bg-slate-50/50"
-          }`}
+          onClick={() => setIsCameraOpen(true)}
+          className={`relative border-2 border-dashed rounded-2xl p-8 sm:p-12 text-center transition-all cursor-pointer group border-slate-300 hover:border-blue-500 bg-white hover:bg-slate-50/50`}
         >
           <div className="flex flex-col items-center justify-center space-y-4">
             <div className="w-16 h-16 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center shadow-xs group-hover:scale-110 group-hover:bg-blue-100 transition-all">
-              <UploadCloud className="w-8 h-8" />
+              <Camera className="w-8 h-8" />
             </div>
 
             <div className="space-y-1">
               <h3 className="text-base sm:text-lg font-bold text-slate-900">
-                Scan & Upload Packaging Panels
+                Live Capture Packaging Panels
               </h3>
               <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
-                Snap or upload 1 to 4 photos (e.g. Front display panel, MRP label, Manufacturer details) for fused Legal Metrology auditing.
+                Snap 1 to 4 photos (e.g. Front display panel, MRP label, Manufacturer details) for fused Legal Metrology auditing. Geo-tags will be automatically embedded.
               </p>
             </div>
 
@@ -290,27 +239,17 @@ export function ImageUploader({ onUpload, isLoading = false }: ImageUploaderProp
                 type="button"
                 variant="primary"
                 onClick={() => setIsCameraOpen(true)}
-                className="flex-1 bg-blue-700 hover:bg-blue-800 text-white font-semibold text-xs sm:text-sm py-2 px-3 sm:px-4 shadow-sm"
+                className="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold text-xs sm:text-sm py-2 px-3 sm:px-4 shadow-sm"
               >
                 <Camera className="w-4 h-4 mr-1.5" />
-                Open Camera
-              </Button>
-
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => fileInputRef.current?.click()}
-                className="flex-1 text-slate-700 font-semibold text-xs sm:text-sm py-2 px-3 sm:px-4"
-              >
-                <ImageIcon className="w-4 h-4 mr-1.5 text-blue-600" />
-                Upload Photos
+                Launch Secure Camera
               </Button>
             </div>
 
             <div className="flex flex-wrap justify-center items-center gap-2 pt-2 text-xs text-slate-500">
               <span className="px-2 py-0.5 rounded bg-slate-100 font-medium text-slate-700">Multi-Photo Fusion</span>
               <span className="text-slate-400">•</span>
-              <span>JPG, PNG, WEBP (Max 10MB/photo)</span>
+              <span>Live Location Tagging Required</span>
             </div>
           </div>
         </div>
@@ -346,17 +285,6 @@ export function ImageUploader({ onUpload, isLoading = false }: ImageUploaderProp
                   >
                     <Camera className="w-3.5 h-3.5 mr-1" />
                     Snap Angle
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isLoading}
-                    className="text-slate-700 text-xs"
-                  >
-                    <Plus className="w-3.5 h-3.5 mr-1" />
-                    Add Photo
                   </Button>
                 </>
               )}
