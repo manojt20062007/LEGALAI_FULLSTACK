@@ -328,6 +328,7 @@ export default function DashboardPage() {
                     const statusCfg = getComplianceStatusConfig(status);
                     const failedCount = item.result?.findings?.filter((f) => f.status.toUpperCase() === "FAIL").length || 0;
                     const passCount = item.result?.findings?.filter((f) => f.status.toUpperCase() === "PASS").length || 0;
+                    const warningCount = item.result?.findings?.filter((f) => ["WARNING", "MANUAL_CHECK", "NOT_CHECKED"].includes(f.status.toUpperCase())).length || 0;
 
                     return (
                       <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
@@ -376,11 +377,17 @@ export default function DashboardPage() {
                         <td className="p-3.5 text-slate-600">
                           {item.result?.findings ? (
                             <div className="flex items-center gap-2 text-[11px]">
-                              <span className="text-emerald-700 font-medium">{passCount} Pass</span>
+                              <span className="text-emerald-700 font-medium">{passCount} Passed</span>
                               <span>•</span>
                               <span className={failedCount > 0 ? "text-rose-700 font-bold" : "text-slate-400"}>
                                 {failedCount} Violations
                               </span>
+                              {warningCount > 0 && (
+                                <>
+                                  <span>•</span>
+                                  <span className="text-amber-600 font-medium">{warningCount} Warnings</span>
+                                </>
+                              )}
                             </div>
                           ) : (
                             <span className="text-slate-400 italic">In progress</span>
