@@ -307,7 +307,7 @@ export function ReportView({ inspection }: ReportViewProps) {
               <tr>
                 <td className="p-2.5 font-medium text-slate-700">Batch / Lot Number</td>
                 <td className="p-2.5 font-mono text-slate-500">Rule 6(1)(g)</td>
-                <td className="p-2.5 text-slate-900">{product?.batch_no || "Not Specified"}</td>
+                <td className="p-2.5 text-slate-900">{product?.batch_no || product?.batch_number || "Not Specified"}</td>
               </tr>
             </tbody>
           </table>
