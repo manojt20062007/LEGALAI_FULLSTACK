@@ -41,6 +41,7 @@ export interface ProductInfo {
   consumer_care?: string | null;
   mfg_date?: string | null;
   batch_no?: string | null;
+  batch_number?: string | null;
   manufacturing_date?: string | null;
   expiry_date?: string | null;
   best_before?: string | null;

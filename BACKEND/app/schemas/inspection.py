@@ -73,6 +73,7 @@ class ExtractedProductData(BaseModel):
     consumer_care: Optional[str] = None
     mfg_date: Optional[str] = None
     batch_number: Optional[str] = None
+    best_before: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 

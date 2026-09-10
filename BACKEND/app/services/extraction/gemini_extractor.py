@@ -47,6 +47,7 @@ class GeminiExtractor:
             - consumer_care (string or null)
             - mfg_date (string or null)
             - batch_number (string or null)
+            - best_before (string or null)
             
             Rules for Extraction:
             1. mrp: If found, always prefix with 'Rs. ' (e.g., 'Rs. 149.00'). Look closely for 'MRP', 'Max Retail Price', or price values followed by '/-'.
@@ -55,6 +56,7 @@ class GeminiExtractor:
             4. mfg_date: Normalize to Month/Year format (e.g., '10/2023' or 'Oct 2023').
             5. manufacturer: Include the full name and address if available.
             6. batch_number: Look for 'B.NO', 'Batch No.', 'Lot No.', or 'B.No:' and extract the alphanumeric string (e.g., '34').
+            7. best_before: Look for 'Best before', 'Expiry Date', 'Exp.', 'Use by' and extract the date string.
             
             If a field is completely missing or illegible, return null. Output MUST be valid JSON only.
             """

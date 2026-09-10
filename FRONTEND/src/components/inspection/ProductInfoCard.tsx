@@ -100,7 +100,7 @@ export function ProductInfoCard({ product }: ProductInfoCardProps) {
     },
     {
       label: "Batch / Lot Number",
-      value: product.batch_no,
+      value: product.batch_no || product.batch_number,
       icon: Layers,
       rule: "Rule 6(1)(g)",
     },
