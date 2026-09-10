@@ -210,14 +210,20 @@ export function ReportView({ inspection }: ReportViewProps) {
         {(inspection.image_url || (inspection.image_urls && inspection.image_urls.length > 0)) && (
           <div className="space-y-3">
             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 border-b border-slate-200 pb-1.5 flex items-center gap-2">
-              <span>Evidentiary Photograph</span>
+              <span>Evidentiary Photograph{(inspection.image_urls && inspection.image_urls.length > 1) ? 's' : ''}</span>
             </h3>
-            <div className="flex justify-center border border-slate-200 rounded-lg p-2 bg-slate-50">
-              <img 
-                src={inspection.image_urls?.[0] || inspection.image_url} 
-                alt="Product Label Evidence" 
-                className="max-h-64 object-contain rounded"
-              />
+            <div className={`grid ${(inspection.image_urls && inspection.image_urls.length > 1) ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-1'} gap-4 border border-slate-200 rounded-lg p-4 bg-slate-50`}>
+              {(inspection.image_urls && inspection.image_urls.length > 0 
+                ? inspection.image_urls 
+                : [inspection.image_url]).filter(Boolean).map((url, idx) => (
+                <div key={idx} className="flex justify-center bg-white border border-slate-100 rounded shadow-xs p-1">
+                  <img 
+                    src={url as string} 
+                    alt={`Product Label Evidence ${idx + 1}`} 
+                    className="max-h-64 object-contain rounded"
+                  />
+                </div>
+              ))}
             </div>
           </div>
         )}
