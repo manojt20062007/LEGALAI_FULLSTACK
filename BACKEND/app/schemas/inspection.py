@@ -74,6 +74,7 @@ class ExtractedProductData(BaseModel):
     mfg_date: Optional[str] = None
     batch_number: Optional[str] = None
     best_before: Optional[str] = None
+    unit_price: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 

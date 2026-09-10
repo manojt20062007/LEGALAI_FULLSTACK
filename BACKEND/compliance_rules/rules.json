@@ -171,5 +171,24 @@
     "parameters": {
       "min_length": 2
     }
+  },
+  {
+    "rule_id": "LM-PC-010",
+    "name": "Unit Sale Price",
+    "description": "Mandatory declaration of the unit sale price (e.g., Rs. X per g/ml).",
+    "field": "unit_price",
+    "check_type": "REQUIRED_FIELD",
+    "severity": "WARNING",
+    "source": {
+      "document": "Legal Metrology (Packaged Commodities) Amendment Rules, 2022",
+      "reference": "Rule 6(1)(e)",
+      "source_url": "https://consumeraffairs.gov.in/pages/legal-metrology-act",
+      "version": "2022 Amendment",
+      "effective_from": "2022-04-01"
+    },
+    "enabled": true,
+    "parameters": {
+      "min_length": 4
+    }
   }
 ]
