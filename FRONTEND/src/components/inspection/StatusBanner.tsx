@@ -119,7 +119,13 @@ export function StatusBanner({ inspection }: StatusBannerProps) {
             </div>
           )}
 
-
+          {/* Report Button */}
+          <Link href={`/inspection/${inspection.id}/report`}>
+            <Button variant="primary" size="md" className="bg-slate-900 hover:bg-slate-800 text-white">
+              <FileText className="w-4 h-4 mr-1.5" />
+              Generate Report
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
