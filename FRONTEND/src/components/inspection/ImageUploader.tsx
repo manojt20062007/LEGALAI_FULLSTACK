@@ -11,7 +11,6 @@ import {
   ShieldAlert,
   Sparkles,
   Camera,
-  Camera,
   Layers,
   AlertTriangle,
   ZoomIn,
@@ -40,7 +39,6 @@ const PANEL_LABELS = [
 
 export function ImageUploader({ onUpload, isLoading = false }: ImageUploaderProps) {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
