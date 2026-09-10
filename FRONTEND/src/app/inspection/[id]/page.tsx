@@ -149,10 +149,7 @@ export default function ResultsPage({ params }: ResultsPageProps) {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {/* Client-Side PDF Generation */}
-          {inspection.result && (
 
-          )}
 
           <Link href="/inspection/new">
             <Button variant="outline" size="sm" className="text-xs">
